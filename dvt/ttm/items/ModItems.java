@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class ModItems {
 	//Material list
-	public static ToolMaterial TELEPORT = EnumHelper.addToolMaterial("teleport", 3, 1337, 2.5F, 7.0F, 16);
+	public static ToolMaterial TELEPORT = EnumHelper.addToolMaterial("teleport", 3, 1337, 7.0F, 2.5F, 16);
 	
 	//Item list
 	public static Item TeleportAxe = new ItemModAxe("teleportAxe", TELEPORT, 8.0F, -3.15F);
@@ -19,6 +19,8 @@ public class ModItems {
 	public static Item TeleportShovel = new ItemModShovel("teleportShovel", TELEPORT, 4.0F);
 	public static Item TeleportHoe = new ItemModHoe("teleportHoe", TELEPORT);
 	
+	//Item categories
+	public static Item[] TeleportToolsList = {TeleportAxe, TeleportPickaxe, TeleportShovel, TeleportHoe};
 	
 	public static void createItems() {
 		GameRegistry.register(TeleportAxe);
