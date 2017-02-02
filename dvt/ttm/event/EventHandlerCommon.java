@@ -29,7 +29,7 @@ public class EventHandlerCommon {
 					int[] slotsOpen = new int[inv.getSizeInventory()];
 					int numOpen = 0;
 					
-					for (int j = 1; j < inv.getSizeInventory(); j++) {
+					for (int j = 0; j < inv.getSizeInventory(); j++) {
 						if (inv.getStackInSlot(j) != null) {
 							slotsOpen[numOpen] = j;
 							numOpen++;
