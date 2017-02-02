@@ -3,6 +3,7 @@ package dvt.ttm.event;
 import dvt.ttm.items.ModItems;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
@@ -25,21 +26,18 @@ public class EventHandlerCommon {
 					int[] invPosArray = e.getHarvester().getHeldItemMainhand().getTagCompound().getIntArray("teleportPos");
 					IInventory inv = (IInventory) e.getWorld().getTileEntity(new BlockPos(invPosArray[0], invPosArray[1], invPosArray[2]));
 					
-					//Scans target inventory, marking which slots are open.
-					int[] slotsOpen = new int[inv.getSizeInventory()];
-					int numOpen = 0;
+					//Scans target inventory, putting items into slots with either the same items or no items. Sets drops to null here.
+					int dropNum = 0;
 					
 					for (int j = 0; j < inv.getSizeInventory(); j++) {
-						if (inv.getStackInSlot(j) != null) {
-							slotsOpen[numOpen] = j;
-							numOpen++;
+						for (int k = dropNum; k < e.getDrops().size(); k++) {
+							if (e.getDrops().get(k).getItem() == inv.getStackInSlot(j).getItem() || inv.getStackInSlot(j).func_190916_E() == 0) {
+								inv.setInventorySlotContents(j, new ItemStack(e.getDrops().get(k).getItem(), inv.getStackInSlot(j).func_190916_E()+e.getDrops().get(k).func_190916_E()));
+								e.getDrops().set(k, null);
+								dropNum++;
+								break;
+							}
 						}
-					}
-					
-					//Overwrites the target inventory, canceling drops as it goes. Stops when there are no more open slots or drops has finished.
-					for (int k = 0; k < slotsOpen.length && k <= e.getDrops().size(); k++) {
-						inv.setInventorySlotContents(slotsOpen[k], e.getDrops().get(k));
-						e.getDrops().set(k, null);
 					}
 					break;
 				}
