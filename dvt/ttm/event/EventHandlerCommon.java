@@ -1,6 +1,7 @@
 package dvt.ttm.event;
 
 import dvt.ttm.items.ModItems;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,7 +16,6 @@ public class EventHandlerCommon {
 	@SubscribeEvent
 	public void onHarvestDrops(HarvestDropsEvent e) {
 		//Initial check to minimize crashing. Always a good thing.
-		
 		if (e != null && e.getHarvester() != null) {
 			Item inUse = e.getHarvester().getHeldItemMainhand().getItem();
 			for (int i = 0; i < ModItems.TeleportToolsList.length; i++) {
@@ -26,23 +26,32 @@ public class EventHandlerCommon {
 					IInventory inv = (IInventory) e.getWorld().getTileEntity(new BlockPos(invPosArray[0], invPosArray[1], invPosArray[2]));
 					
 					//Checks to make sure inventory exists and that the block being mined is not the target inventory.
-					System.out.println(e.getPos());
-					System.out.println(invPosArray[0]+" "+invPosArray[1]+" "+invPosArray[2]);
 					if (e.getPos().getX() == invPosArray[0] && e.getPos().getY() == invPosArray[1] && e.getPos().getZ() == invPosArray[2]) {
 						System.out.println(e.getHarvester().getHeldItem(e.getHarvester().swingingHand));
 					} else {
 						//Scans target inventory, putting items into slots with either the same items or no items. Sets drops to null here.
 						int dropNum = 0;
 						
-						for (int j = 0; j < inv.getSizeInventory(); j++) {
-							for (int k = dropNum; k < e.getDrops().size(); k++) {
-								if ((e.getDrops().get(k).getItem() == inv.getStackInSlot(j).getItem() && inv.getStackInSlot(j).func_190916_E() < inv.getStackInSlot(j).getMaxStackSize() && e.getDrops().get(k).getItemDamage() == inv.getStackInSlot(j).getItemDamage()) || inv.getStackInSlot(j).func_190916_E() == 0) {
-									inv.setInventorySlotContents(j, new ItemStack(e.getDrops().get(k).getItem(), inv.getStackInSlot(j).func_190916_E()+e.getDrops().get(k).func_190916_E(), e.getDrops().get(k).getItemDamage()));
-									e.getDrops().set(k, null);
+						//Gets all the drops and puts them in a list.
+						ItemStack[] drops = {new ItemStack(Items.AIR, 0)};
+						for (int j = 0; j < e.getDrops().size(); j++) {
+							drops[j] = e.getDrops().get(j);
+						}
+						
+						//Overrides the drops and puts them in the target inventory.
+						int j = 0;
+						
+						while (j < inv.getSizeInventory()) {
+							for (int k = dropNum; k < drops.length; k++) {
+								if ((drops[k].getItem() == inv.getStackInSlot(j).getItem() && inv.getStackInSlot(j).getCount() < inv.getStackInSlot(j).getMaxStackSize() && drops[k].getItemDamage() == inv.getStackInSlot(j).getItemDamage()) || inv.getStackInSlot(j).getCount() == 0) {
+									inv.setInventorySlotContents(j, new ItemStack(drops[k].getItem(), inv.getStackInSlot(j).getCount()+drops[k].getCount(), drops[k].getItemDamage()));
+									e.getDrops().set(k, new ItemStack(Items.AIR, 0));
 									dropNum++;
+									j = -1;
 									break;
 								}
 							}
+							j++;
 						}
 					}
 					break;
