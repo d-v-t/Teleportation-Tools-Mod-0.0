@@ -12,7 +12,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EventHandlerCommon {
 	//Overrides item drop and sends items to chest if location exists and player is not sneaking. If not, drops the items like normal.
-	
 	@SubscribeEvent
 	public void onHarvestDrops(HarvestDropsEvent e) {
 		//Initial check to minimize crashing. Always a good thing.
@@ -26,16 +25,23 @@ public class EventHandlerCommon {
 					int[] invPosArray = e.getHarvester().getHeldItemMainhand().getTagCompound().getIntArray("teleportPos");
 					IInventory inv = (IInventory) e.getWorld().getTileEntity(new BlockPos(invPosArray[0], invPosArray[1], invPosArray[2]));
 					
-					//Scans target inventory, putting items into slots with either the same items or no items. Sets drops to null here.
-					int dropNum = 0;
-					
-					for (int j = 0; j < inv.getSizeInventory(); j++) {
-						for (int k = dropNum; k < e.getDrops().size(); k++) {
-							if (e.getDrops().get(k).getItem() == inv.getStackInSlot(j).getItem() || inv.getStackInSlot(j).func_190916_E() == 0) {
-								inv.setInventorySlotContents(j, new ItemStack(e.getDrops().get(k).getItem(), inv.getStackInSlot(j).func_190916_E()+e.getDrops().get(k).func_190916_E()));
-								e.getDrops().set(k, null);
-								dropNum++;
-								break;
+					//Checks to make sure inventory exists and that the block being mined is not the target inventory.
+					System.out.println(e.getPos());
+					System.out.println(invPosArray[0]+" "+invPosArray[1]+" "+invPosArray[2]);
+					if (e.getPos().getX() == invPosArray[0] && e.getPos().getY() == invPosArray[1] && e.getPos().getZ() == invPosArray[2]) {
+						System.out.println(e.getHarvester().getHeldItem(e.getHarvester().swingingHand));
+					} else {
+						//Scans target inventory, putting items into slots with either the same items or no items. Sets drops to null here.
+						int dropNum = 0;
+						
+						for (int j = 0; j < inv.getSizeInventory(); j++) {
+							for (int k = dropNum; k < e.getDrops().size(); k++) {
+								if ((e.getDrops().get(k).getItem() == inv.getStackInSlot(j).getItem() && inv.getStackInSlot(j).func_190916_E() < inv.getStackInSlot(j).getMaxStackSize() && e.getDrops().get(k).getItemDamage() == inv.getStackInSlot(j).getItemDamage()) || inv.getStackInSlot(j).func_190916_E() == 0) {
+									inv.setInventorySlotContents(j, new ItemStack(e.getDrops().get(k).getItem(), inv.getStackInSlot(j).func_190916_E()+e.getDrops().get(k).func_190916_E(), e.getDrops().get(k).getItemDamage()));
+									e.getDrops().set(k, null);
+									dropNum++;
+									break;
+								}
 							}
 						}
 					}
