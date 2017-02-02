@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class EventHandlerCommon {
 	//Overrides item drop and sends items to chest if location exists and player is not sneaking. If not, drops the items like normal.
 	@SubscribeEvent
-	public void onHarvestDrops(HarvestDropsEvent e) {
+	public void onBlockDropItems(HarvestDropsEvent e) {
 		//Initial check to minimize crashing. Always a good thing.
 		if (e != null && e.getHarvester() != null) {
 			Item inUse = e.getHarvester().getHeldItemMainhand().getItem();
@@ -26,8 +26,8 @@ public class EventHandlerCommon {
 					IInventory inv = (IInventory) e.getWorld().getTileEntity(new BlockPos(invPosArray[0], invPosArray[1], invPosArray[2]));
 					
 					//Checks to make sure inventory exists and that the block being mined is not the target inventory.
-					if (e.getPos().getX() == invPosArray[0] && e.getPos().getY() == invPosArray[1] && e.getPos().getZ() == invPosArray[2]) {
-						System.out.println(e.getHarvester().getHeldItem(e.getHarvester().swingingHand));
+					if (inv == null || e.getPos().getX() == invPosArray[0] && e.getPos().getY() == invPosArray[1] && e.getPos().getZ() == invPosArray[2]) {
+						
 					} else {
 						//Scans target inventory, putting items into slots with either the same items or no items. Sets drops to null here.
 						int dropNum = 0;
